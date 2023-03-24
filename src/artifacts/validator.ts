@@ -25,8 +25,7 @@ export async function sendTx(client: Client, action: 'deactivate' | 'reactivate'
     }
 }
 
-type NewValidator = { keys: ValidatorKeys, balance: number }
-export async function createValidator(client: Client): Promise<Result<NewValidator>> {
+export async function createValidator(client: Client): Promise<Result<ValidatorKeys>> {
     const wallet = await client.account.new();
     if (wallet.error) return { error: wallet.error.message, data: undefined }
 
@@ -68,32 +67,15 @@ export async function createValidator(client: Client): Promise<Result<NewValidat
         public_key: wallet.data.publicKey
     }
 
-    return new Promise((resolve) => {
-       handleLog(client, wallet.data.address, async (tx) => {
-           const balance = await client.account.get({address: key.address});
-           if (balance.error) resolve({ error: balance.error.message, data: undefined })
-       
-           if (balance.data!.balance < constants.data!.validatorDeposit) {
-                resolve({ error: 'Validator balance is too low', data: undefined })
-           }
-
-           console.log('New Validator tx funding: ')
-           console.log(tx)
-
-           resolve({
-               error: undefined,
-               data: {
-                    keys: {
-                        active: true,
-                        address: key,
-                        reward_address: key,
-                        signing_key: key
-                    },
-                    balance: balance.data?.balance || 0
-               }
-           })
-       })
-    })
+    return {
+        error: undefined,
+        data: {
+            active: true,
+            address: key,
+            reward_address: key,
+            signing_key: key
+        }
+    }
 }
 
 export async function removeValidator(client: Client, { address }: InstanceKey): Promise<Result<boolean>> {

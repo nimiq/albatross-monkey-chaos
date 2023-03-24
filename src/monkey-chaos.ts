@@ -15,7 +15,7 @@ let client: Client
 const actions = ['deactivate', 'reactivate', 'create', 'delete'] as const;
 type Action = typeof actions[number];
 export type Probabilities = Record<Action, number>;
-type MonkeyChaosConfig = {
+export type MonkeyChaosConfig = {
     probabilities: Probabilities,
     count: number
     timer: number | [number, number]
@@ -24,10 +24,10 @@ type MonkeyChaosConfig = {
 type MonkeyChaosReport = {
     action: Action,
     validator: string,
-    meta?: any
     block: number,
     time: string,
-    output: '✅' | '❌'
+    sucess: '✅' | '❌'
+    error?: string
 }[]
 
 type RouletteDecision = {
@@ -59,7 +59,6 @@ async function monkeyChaosLoop(validators: ValidatorKeys[], {count, probabilitie
         console.log(`🙊  Monkey chose to ${action} validator ${validator?.address.address || ''} (${count})`)
 
         let req: Awaited<ReturnType<typeof sendTx> | ReturnType<typeof createValidator> | ReturnType<typeof removeValidator>> | undefined;
-        let meta: string | number | undefined;
 
         switch (action) {
             case 'deactivate':
@@ -71,12 +70,12 @@ async function monkeyChaosLoop(validators: ValidatorKeys[], {count, probabilitie
             case 'create':
                 req = await createValidator(client);
                 if (req.data) {
-                    validators.push(req.data.keys)
-                    meta = req.data.balance
+                    validators.push(req.data)
                 }
                 break;
             case 'delete':
                 req = await removeValidator(client, validator.address);
+                validators = validators.filter(v => v.address.address !== validator.address.address)
                 break;
         }
 
@@ -89,12 +88,12 @@ async function monkeyChaosLoop(validators: ValidatorKeys[], {count, probabilitie
         if (block.error) throw new Error(block.error.message);
 
         report.push({
-            output: req && req.error ? '❌' : '✅',
+            sucess: req && req.error ? '❌' : '✅',
             action,
             validator: validator?.address.address || validators.at(-1)?.address.address || '',
             block: block.data,
             time,
-            meta: req.error || meta || '',
+            error: req.error || '',
         })
             
         if (req && req.error) {
@@ -105,7 +104,6 @@ async function monkeyChaosLoop(validators: ValidatorKeys[], {count, probabilitie
         }
         
         req = undefined;
-        meta = undefined;
 
         let randomTime: number;
         if (typeof timer === 'number') randomTime = timer;

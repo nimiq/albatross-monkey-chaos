@@ -27,7 +27,7 @@ yarn install
 
 ### Configuration
 
-Edit configuration in [main.ts](./src/main.ts) file.
+Edit configuration in [config.ts](./src/config.ts) file.
 
 ### Running the tool
 
@@ -73,7 +73,6 @@ An example output of the Monkey Chaos tool will look like:
 🙈  Sleeping for 2 seconds...
 🙊  Monkey chose to delete validator NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD (1)
         ✅  Success
-🙈  Sleeping for 2 seconds...
 🙈  Sleeping for 2 seconds...
 🐒  Monkey Chaos finished...
 📝  Report:
