@@ -10,11 +10,7 @@ export type Callback = {
 
 export async function handleLog(client: Client, address: Address, fn: (tx: Transaction) => {}) {
     const { next } = await client.logs.subscribe({addresses: [address]}, {once: true});
-    console.log('Subscribed to logs')
     next(async ({data, error}) => {
-        console.log('Stream')
-        console.log({data, error})
-
         if(error) {
             console.log({ error, data: undefined })
             return
@@ -24,11 +20,10 @@ export async function handleLog(client: Client, address: Address, fn: (tx: Trans
         }
 
         const txData = (await client.transaction.get({ hash: data.transactions[0].hash }));
-        console.log('🚀🚀🚀🚀🚀🚀🚀🚀')
         
         if(txData.error) {
             console.error(txData)
-            throw new Error(`ERROR`)
+            throw new Error(txData.error.message)
         }
 
         fn(txData.data)

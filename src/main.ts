@@ -1,38 +1,20 @@
 import { Client } from "nimiq-rpc-client-ts";
-import donator from "./data/donator";
-import { unlockKey } from "./instances/account";
-import { createValidator, deleteValidator, unlockGenesisValidators } from "./instances/validator";
+import { prepareEnvironment } from "./environment";
+import { monkeyChaos, Probabilities } from "./monkey-chaos";
 
-export type Result<T> = {
-    error: string,
-    data: undefined
-} | {
-    error: undefined,
-    data: T
-}
-
-const probabilities = {
-    'toggle': 0.8,
-    'create': 0.95,
-    'remove': 1
+const probabilities: Probabilities = {
+    'deactivate': 450,
+    'reactivate': 450,
+    'create': 50,
+    'delete': 50
 }
 
 async function main(){ 
     const client = new Client(new URL("http://localhost:10200"));
-    // const {data: validator, error} = await unlockGenesisValidators(client);
-    // if(error) throw new Error(error);
-    await unlockKey(client, donator)
-
-    const newV = await createValidator(client);
-    if(!newV.data) throw new Error(newV.error);
-
-    setTimeout(async () => {
-        const res = await deleteValidator(client, newV.data);
-        console.log('REsults!');
-        console.log(res);
-    }, 10000);
+    const { data, error } = await prepareEnvironment(client, {unlockValidators: true, unlockDonator: true});
+    if (error) throw new Error(error);
     
-    // await monkeyChaos(client, validators, {probabilities, count: 10});
+    await monkeyChaos(client, data?.validators!, {probabilities, count: 60, timer: 2});
 }
 
 main()

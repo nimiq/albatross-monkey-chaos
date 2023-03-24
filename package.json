@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/onmax/albatross-monkey-chaos.git",
-  "author": "maximo <maximo@nimiq.com>",
+  "author": "onmax",
   "license": "MIT",
   "scripts": {
-    "chaos": "tsup src/main.ts --format esm --dts --out-dir dist"
+    "chaos": "tsup src/main.ts --format esm --dts --out-dir dist && node ./dist/main.mjs",
+    "bls": "tsup src/bls.ts --format esm --dts --out-dir dist && node ./dist/bls.mjs"
   },
   "dependencies": {
-    "nimiq-rpc-client-ts": "^0.0.21"
+    "nimiq-rpc-client-ts": "^0.0.22"
   },
   "devDependencies": {
     "@types/node": "^18.15.5",
