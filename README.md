@@ -2,6 +2,9 @@
 
 Albatross Monkey Chaos is a tool that simulates events happening to a set of validators. It randomly performs a set of actions such as deactivating, reactivating, creating, or deleting validators. This tool is useful for testing and simulating real-life scenarios where validators could face different types of issues.
 
+> **Warning**
+> This is tool is very primitive and may cause unexpected behavior. Use at your own risk.
+
 ## Requirements
 
 - Node.js 16.x or higher
