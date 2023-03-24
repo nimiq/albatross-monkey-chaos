@@ -1,0 +1,41 @@
+Arguments: 
+  /home/max/.nvm/versions/node/v16.16.0/bin/node /home/max/.yarn/bin/yarn.js install nimiq-rpc-client-ts
+
+PATH: 
+  /home/max/.deno/bin:/home/max/.bun/bin:/home/max/.local/share/pnpm:/home/max/.yarn/bin:/home/max/.config/yarn/global/node_modules/.bin:/home/max/.local/share/pnpm:/home/max/.yarn/bin:/home/max/.config/yarn/global/node_modules/.bin:/home/max/.vscode-server/bin/ee2b180d582a7f601fa6ecfdad8d9fd269ab1884/bin/remote-cli:/home/max/.local/bin:/home/max/.local/share/pnpm:/home/max/.cargo/bin:/home/max/.nvm/versions/node/v16.16.0/bin:/home/max/.yarn/bin:/home/max/.config/yarn/global/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Users/maxim/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/maxim/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Program Files (x86)/BrowserStackLocal/:/snap/bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  16.16.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  SyntaxError: /home/max/nimiq/monkey-chaos/package.json: Unexpected token } in JSON at position 307
+      at JSON.parse (<anonymous>)
+      at /home/max/.yarn/lib/cli.js:1629:59
+      at Generator.next (<anonymous>)
+      at step (/home/max/.yarn/lib/cli.js:310:30)
+      at /home/max/.yarn/lib/cli.js:321:13
+
+npm manifest: 
+  {
+    "name": "monkey-chaos",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "https://github.com/onmax/albatross-monkey-chaos.git",
+    "author": "maximo <maximo@nimiq.com>",
+    "license": "MIT",
+    "scripts": {
+      "build:scripts": "tsup scripts/*.ts --format esm --dts --out-dir dist/scripts"
+    },
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
