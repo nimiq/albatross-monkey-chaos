@@ -5,7 +5,7 @@ Albatross Monkey Chaos is a tool that simulates events happening to a set of val
 ## Requirements
 
 - Node.js 16.x or higher
-- A local devnet running on the latest version of the (Albatross branch)[https://github.com/nimiq/core-rs-albatross]. Both projects should be in the same folder as shown here:
+- A local devnet running on the latest version of the [Albatross branch](https://github.com/nimiq/core-rs-albatross). Both projects should be in the same folder as shown here:
 
 ```
 your-folder
@@ -27,7 +27,7 @@ yarn install
 
 ### Configuration
 
-Edit configuration in (main.ts)[./src/main.ts] file.
+Edit configuration in [main.ts](./src/main.ts) file.
 
 ### Running the tool
 
