@@ -59,85 +59,85 @@ An example output of the Monkey Chaos tool will look like:
 │    2    │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  true  │
 │    3    │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  true  │
 └─────────┴────────────────────────────────────────────────┴────────┘
-🙊  Monkey chose to delete validator NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD (59)
+🙊  Monkey chose to deactivate validator NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX (59)
         ✅  Success
 🙈  Sleeping for 2 seconds...
-🙊  Monkey chose to delete validator NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV (58)
+🙊  Monkey chose to create validator (58)
         ✅  Success
 🙈  Sleeping for 2 seconds...
 
 ...
 
-🙊  Monkey chose to deactivate validator NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX (2)
+🙊  Monkey chose to delete validator NQ21 BKRX F5EC VJVL CYGA C8UJ L81Q CEYC RDXK (2)
         ✅  Success
 🙈  Sleeping for 2 seconds...
-🙊  Monkey chose to delete validator NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD (1)
+🙊  Monkey chose to deactivate validator NQ73 VMAG 23H6 8SQJ C71X CALG 69HL BRGV PVRX (1)
         ✅  Success
 🙈  Sleeping for 2 seconds...
 🐒  Monkey Chaos finished...
 📝  Report:
-┌─────────┬────────┬──────────────┬────────────────────────────────────────────────┬───────┬────────────────┬────────────────────────────────┐
-│ (index) │ output │    action    │                   validator                    │ block │      time      │              meta              │
-├─────────┼────────┼──────────────┼────────────────────────────────────────────────┼───────┼────────────────┼────────────────────────────────┤
-│    0    │  '✅'  │   'delete'   │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  408  │ '12:17:28:316' │               ''               │
-│    1    │  '✅'  │   'delete'   │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  410  │ '12:17:30:374' │               ''               │
-│    2    │  '✅'  │   'delete'   │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  412  │ '12:17:32:389' │               ''               │
-│    3    │  '✅'  │ 'deactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  414  │ '12:17:34:413' │               ''               │
-│    4    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  525  │ '12:19:25:162' │ 'Validator balance is too low' │
-│    5    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  537  │ '12:19:37:179' │ 'Validator balance is too low' │
-│    6    │  '✅'  │   'delete'   │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  539  │ '12:19:39:195' │               ''               │
-│    7    │  '✅'  │   'delete'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  541  │ '12:19:41:210' │               ''               │
-│    8    │  '✅'  │ 'reactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  543  │ '12:19:43:226' │               ''               │
-│    9    │  '✅'  │ 'deactivate' │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  545  │ '12:19:45:242' │               ''               │
-│   10    │  '✅'  │   'delete'   │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  547  │ '12:19:47:257' │               ''               │
-│   11    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  558  │ '12:19:58:299' │ 'Validator balance is too low' │
-│   12    │  '✅'  │ 'deactivate' │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  560  │ '12:20:00:315' │               ''               │
-│   13    │  '✅'  │ 'deactivate' │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  562  │ '12:20:02:335' │               ''               │
-│   14    │  '✅'  │ 'reactivate' │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  564  │ '12:20:04:352' │               ''               │
-│   15    │  '✅'  │   'delete'   │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  566  │ '12:20:06:370' │               ''               │
-│   16    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  576  │ '12:20:16:229' │ 'Validator balance is too low' │
-│   17    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  586  │ '12:20:26:227' │ 'Validator balance is too low' │
-│   18    │  '✅'  │ 'reactivate' │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  588  │ '12:20:28:240' │               ''               │
-│   19    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  598  │ '12:20:38:251' │ 'Validator balance is too low' │
-│   20    │  '✅'  │ 'deactivate' │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  599  │ '12:20:40:265' │               ''               │
-│   21    │  '✅'  │   'delete'   │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  602  │ '12:20:42:286' │               ''               │
-│   22    │  '✅'  │   'delete'   │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  604  │ '12:20:44:301' │               ''               │
-│   23    │  '✅'  │   'delete'   │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  606  │ '12:20:46:315' │               ''               │
-│   24    │  '✅'  │ 'deactivate' │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  608  │ '12:20:48:339' │               ''               │
-│   25    │  '✅'  │   'delete'   │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  610  │ '12:20:50:362' │               ''               │
-│   26    │  '✅'  │ 'deactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  612  │ '12:20:52:381' │               ''               │
-│   27    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  622  │ '12:21:02:271' │ 'Validator balance is too low' │
-│   28    │  '✅'  │ 'reactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  624  │ '12:21:04:287' │               ''               │
-│   29    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  634  │ '12:21:14:276' │ 'Validator balance is too low' │
-│   30    │  '✅'  │ 'reactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  636  │ '12:21:16:293' │               ''               │
-│   31    │  '✅'  │ 'deactivate' │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  638  │ '12:21:18:308' │               ''               │
-│   32    │  '✅'  │   'delete'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  640  │ '12:21:20:325' │               ''               │
-│   33    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  650  │ '12:21:30:268' │ 'Validator balance is too low' │
-│   34    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  661  │ '12:21:41:304' │ 'Validator balance is too low' │
-│   35    │  '✅'  │ 'deactivate' │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  663  │ '12:21:43:320' │               ''               │
-│   36    │  '✅'  │ 'reactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  665  │ '12:21:45:335' │               ''               │
-│   37    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  667  │ '12:21:47:351' │               ''               │
-│   38    │  '✅'  │   'delete'   │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  669  │ '12:21:49:366' │               ''               │
-│   39    │  '✅'  │   'delete'   │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  671  │ '12:21:51:380' │               ''               │
-│   40    │  '✅'  │ 'reactivate' │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  673  │ '12:21:53:397' │               ''               │
-│   41    │  '✅'  │ 'deactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  675  │ '12:21:55:415' │               ''               │
-│   42    │  '✅'  │   'delete'   │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  677  │ '12:21:57:432' │               ''               │
-│   43    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  687  │ '12:22:07:286' │ 'Validator balance is too low' │
-│   44    │  '✅'  │ 'reactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  689  │ '12:22:09:302' │               ''               │
-│   45    │  '✅'  │   'delete'   │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  691  │ '12:22:11:316' │               ''               │
-│   46    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  693  │ '12:22:13:331' │               ''               │
-│   47    │  '✅'  │ 'reactivate' │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  695  │ '12:22:15:345' │               ''               │
-│   48    │  '✅'  │ 'deactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  697  │ '12:22:17:360' │               ''               │
-│   49    │  '✅'  │   'delete'   │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  699  │ '12:22:19:374' │               ''               │
-│   50    │  '✅'  │ 'reactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  701  │ '12:22:21:387' │               ''               │
-│   51    │  '✅'  │ 'deactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  703  │ '12:22:23:403' │               ''               │
-│   52    │  '✅'  │ 'reactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  705  │ '12:22:25:418' │               ''               │
-│   53    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  707  │ '12:22:27:433' │               ''               │
-│   54    │  '✅'  │ 'deactivate' │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │  709  │ '12:22:29:447' │               ''               │
-│   55    │  '✅'  │ 'deactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  711  │ '12:22:31:462' │               ''               │
-│   56    │  '✅'  │   'delete'   │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  713  │ '12:22:33:477' │               ''               │
-│   57    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │  715  │ '12:22:35:491' │               ''               │
-│   58    │  '✅'  │   'delete'   │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │  717  │ '12:22:37:505' │               ''               │
-│   59    │  '❌'  │   'create'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │  727  │ '12:22:47:313' │ 'Validator balance is too low' │
-└─────────┴────────┴──────────────┴────────────────────────────────────────────────┴───────┴────────────────┴────────────────────────────────┘
+┌─────────┬────────┬──────────────┬────────────────────────────────────────────────┬───────┬────────────────┬───────┐
+│ (index) │ sucess │    action    │                   validator                    │ block │      time      │ error │
+├─────────┼────────┼──────────────┼────────────────────────────────────────────────┼───────┼────────────────┼───────┤
+│    0    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2072  │ '12:45:13:028' │  ''   │
+│    1    │  '✅'  │   'create'   │ 'NQ21 Q484 674V YXJ2 JUKD D3T4 BX87 2T0M 2PYV' │ 2081  │ '12:45:22:142' │  ''   │
+│    2    │  '✅'  │ 'reactivate' │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │ 2083  │ '12:45:24:157' │  ''   │
+│    3    │  '✅'  │   'create'   │ 'NQ08 467T 0E7D HT9D GG3C S1TU CS3P LXGB TFXG' │ 2092  │ '12:45:33:417' │  ''   │
+│    4    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2094  │ '12:45:35:433' │  ''   │
+│    5    │  '✅'  │   'create'   │ 'NQ60 AMD1 EUVS J7F9 2ERX YJHD BA2V 8GV1 6AXN' │ 2104  │ '12:45:44:897' │  ''   │
+│    6    │  '✅'  │   'delete'   │ 'NQ86 GSTD MFGN E3X4 0KGU 4PJU D2AQ P946 L4RV' │ 2106  │ '12:45:46:914' │  ''   │
+│    7    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2108  │ '12:45:48:931' │  ''   │
+│    8    │  '✅'  │ 'deactivate' │ 'NQ60 AMD1 EUVS J7F9 2ERX YJHD BA2V 8GV1 6AXN' │ 2110  │ '12:45:50:946' │  ''   │
+│    9    │  '✅'  │ 'deactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │ 2112  │ '12:45:52:964' │  ''   │
+│   10    │  '✅'  │ 'reactivate' │ 'NQ60 AMD1 EUVS J7F9 2ERX YJHD BA2V 8GV1 6AXN' │ 2114  │ '12:45:54:991' │  ''   │
+│   11    │  '✅'  │   'create'   │ 'NQ44 RL1B Y4UB 3VD8 0RDU 8RGK AXKS 3VNL K2D9' │ 2123  │ '12:46:04:214' │  ''   │
+│   12    │  '✅'  │ 'deactivate' │ 'NQ44 RL1B Y4UB 3VD8 0RDU 8RGK AXKS 3VNL K2D9' │ 2125  │ '12:46:06:232' │  ''   │
+│   13    │  '✅'  │ 'deactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │ 2127  │ '12:46:08:250' │  ''   │
+│   14    │  '✅'  │   'create'   │ 'NQ95 6K94 ST55 BMY3 H6PD S4D5 N3CM AEP4 ET8L' │ 2136  │ '12:46:17:461' │  ''   │
+│   15    │  '✅'  │ 'deactivate' │ 'NQ44 RL1B Y4UB 3VD8 0RDU 8RGK AXKS 3VNL K2D9' │ 2138  │ '12:46:19:475' │  ''   │
+│   16    │  '✅'  │ 'reactivate' │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │ 2140  │ '12:46:21:495' │  ''   │
+│   17    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2142  │ '12:46:23:517' │  ''   │
+│   18    │  '✅'  │   'delete'   │ 'NQ21 Q484 674V YXJ2 JUKD D3T4 BX87 2T0M 2PYV' │ 2144  │ '12:46:25:532' │  ''   │
+│   19    │  '✅'  │ 'reactivate' │ 'NQ95 6K94 ST55 BMY3 H6PD S4D5 N3CM AEP4 ET8L' │ 2146  │ '12:46:27:554' │  ''   │
+│   20    │  '✅'  │ 'reactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2148  │ '12:46:29:589' │  ''   │
+│   21    │  '✅'  │   'create'   │ 'NQ17 PYMP 6NNQ 8KJN 30JG LQFB DV37 LV2H RFNF' │ 2158  │ '12:46:38:987' │  ''   │
+│   22    │  '✅'  │   'create'   │ 'NQ27 93XL 695C F25U 62FY 3GJ4 UFBM L6U7 T3CJ' │ 2167  │ '12:46:48:243' │  ''   │
+│   23    │  '✅'  │   'create'   │ 'NQ90 ABTL 4H91 PRJ9 NRAB PYQK KRMH S120 G59P' │ 2176  │ '12:46:57:560' │  ''   │
+│   24    │  '✅'  │ 'reactivate' │ 'NQ60 AMD1 EUVS J7F9 2ERX YJHD BA2V 8GV1 6AXN' │ 2178  │ '12:46:59:575' │  ''   │
+│   25    │  '✅'  │   'create'   │ 'NQ82 1FN1 V0YL BYHM DV3X 8X3H UN7G 294G KQR8' │ 2188  │ '12:47:09:276' │  ''   │
+│   26    │  '✅'  │   'create'   │ 'NQ73 VMAG 23H6 8SQJ C71X CALG 69HL BRGV PVRX' │ 2197  │ '12:47:18:515' │  ''   │
+│   27    │  '✅'  │   'delete'   │ 'NQ27 93XL 695C F25U 62FY 3GJ4 UFBM L6U7 T3CJ' │ 2199  │ '12:47:20:533' │  ''   │
+│   28    │  '✅'  │   'delete'   │ 'NQ08 467T 0E7D HT9D GG3C S1TU CS3P LXGB TFXG' │ 2201  │ '12:47:22:557' │  ''   │
+│   29    │  '✅'  │   'delete'   │ 'NQ49 QD4P 1TPH KGSN ES16 ADL7 AC27 K7YE B8RB' │ 2203  │ '12:47:24:583' │  ''   │
+│   30    │  '✅'  │ 'deactivate' │ 'NQ82 1FN1 V0YL BYHM DV3X 8X3H UN7G 294G KQR8' │ 2205  │ '12:47:26:603' │  ''   │
+│   31    │  '✅'  │ 'deactivate' │ 'NQ90 ABTL 4H91 PRJ9 NRAB PYQK KRMH S120 G59P' │ 2207  │ '12:47:28:619' │  ''   │
+│   32    │  '✅'  │ 'deactivate' │ 'NQ60 AMD1 EUVS J7F9 2ERX YJHD BA2V 8GV1 6AXN' │ 2209  │ '12:47:30:635' │  ''   │
+│   33    │  '✅'  │ 'reactivate' │ 'NQ73 VMAG 23H6 8SQJ C71X CALG 69HL BRGV PVRX' │ 2211  │ '12:47:32:653' │  ''   │
+│   34    │  '✅'  │ 'deactivate' │ 'NQ17 PYMP 6NNQ 8KJN 30JG LQFB DV37 LV2H RFNF' │ 2213  │ '12:47:34:669' │  ''   │
+│   35    │  '✅'  │   'delete'   │ 'NQ95 6K94 ST55 BMY3 H6PD S4D5 N3CM AEP4 ET8L' │ 2215  │ '12:47:36:683' │  ''   │
+│   36    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2217  │ '12:47:38:697' │  ''   │
+│   37    │  '✅'  │ 'reactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2219  │ '12:47:40:712' │  ''   │
+│   38    │  '✅'  │   'create'   │ 'NQ78 QXRA 71NY 0T3B VJV2 QPHG 7VY1 6V8T 29J7' │ 2228  │ '12:47:49:809' │  ''   │
+│   39    │  '✅'  │   'create'   │ 'NQ15 FXNK L5D0 20NV 6G7M BXJX 52GM UH0Y YNYN' │ 2237  │ '12:47:58:833' │  ''   │
+│   40    │  '✅'  │ 'reactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2240  │ '12:48:00:848' │  ''   │
+│   41    │  '✅'  │   'create'   │ 'NQ31 X4AE LVJM XSJB XFLK 8UAA EB6G P900 4RU7' │ 2248  │ '12:48:09:788' │  ''   │
+│   42    │  '✅'  │   'delete'   │ 'NQ90 ABTL 4H91 PRJ9 NRAB PYQK KRMH S120 G59P' │ 2250  │ '12:48:11:803' │  ''   │
+│   43    │  '✅'  │   'delete'   │ 'NQ31 X4AE LVJM XSJB XFLK 8UAA EB6G P900 4RU7' │ 2252  │ '12:48:13:819' │  ''   │
+│   44    │  '✅'  │   'delete'   │ 'NQ92 HXM6 XR1B 8J8S TGHF BY75 GPMV 3LMR G5TD' │ 2255  │ '12:48:15:835' │  ''   │
+│   45    │  '✅'  │   'delete'   │ 'NQ82 1FN1 V0YL BYHM DV3X 8X3H UN7G 294G KQR8' │ 2257  │ '12:48:17:850' │  ''   │
+│   46    │  '✅'  │ 'deactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2259  │ '12:48:19:863' │  ''   │
+│   47    │  '✅'  │   'create'   │ 'NQ40 JDM5 B8BB 0HB9 5FUP 04HB 3VP0 AJNG PB1E' │ 2267  │ '12:48:28:840' │  ''   │
+│   48    │  '✅'  │   'delete'   │ 'NQ15 FXNK L5D0 20NV 6G7M BXJX 52GM UH0Y YNYN' │ 2270  │ '12:48:30:853' │  ''   │
+│   49    │  '✅'  │ 'reactivate' │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2272  │ '12:48:32:867' │  ''   │
+│   50    │  '✅'  │   'delete'   │ 'NQ78 QXRA 71NY 0T3B VJV2 QPHG 7VY1 6V8T 29J7' │ 2274  │ '12:48:34:882' │  ''   │
+│   51    │  '✅'  │   'delete'   │ 'NQ17 PYMP 6NNQ 8KJN 30JG LQFB DV37 LV2H RFNF' │ 2276  │ '12:48:36:897' │  ''   │
+│   52    │  '✅'  │   'delete'   │ 'NQ34 8U3V K8JT VQLA CF3E K081 GQGJ RYEA NCDX' │ 2278  │ '12:48:38:911' │  ''   │
+│   53    │  '✅'  │ 'deactivate' │ 'NQ60 AMD1 EUVS J7F9 2ERX YJHD BA2V 8GV1 6AXN' │ 2280  │ '12:48:40:926' │  ''   │
+│   54    │  '✅'  │   'create'   │ 'NQ21 BKRX F5EC VJVL CYGA C8UJ L81Q CEYC RDXK' │ 2289  │ '12:48:49:920' │  ''   │
+│   55    │  '✅'  │   'create'   │ 'NQ85 8844 29LD V31X 7NKS PSG3 P64C 7QFP N155' │ 2298  │ '12:48:59:182' │  ''   │
+│   56    │  '✅'  │   'delete'   │ 'NQ44 RL1B Y4UB 3VD8 0RDU 8RGK AXKS 3VNL K2D9' │ 2300  │ '12:49:01:196' │  ''   │
+│   57    │  '✅'  │   'create'   │ 'NQ17 7ELL Q5D0 AXGV 2127 HUR7 HTTC 8VH4 8D84' │ 2309  │ '12:49:10:215' │  ''   │
+│   58    │  '✅'  │   'delete'   │ 'NQ21 BKRX F5EC VJVL CYGA C8UJ L81Q CEYC RDXK' │ 2311  │ '12:49:12:227' │  ''   │
+│   59    │  '✅'  │ 'deactivate' │ 'NQ73 VMAG 23H6 8SQJ C71X CALG 69HL BRGV PVRX' │ 2313  │ '12:49:14:244' │  ''   │
+└─────────┴────────┴──────────────┴────────────────────────────────────────────────┴───────┴────────────────┴───────┘
 ```
