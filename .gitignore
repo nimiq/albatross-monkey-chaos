@@ -39,4 +39,4 @@ cli/tests/.test_coverage/
 /tools/wpt/certs/index.txt*
 /tools/wpt/certs/serial*
 
-/dist
+/dist/

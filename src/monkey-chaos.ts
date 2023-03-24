@@ -116,10 +116,10 @@ async function monkeyChaosLoop(validators: ValidatorKeys[], {count, probabilitie
     }
 }
 
-export async function monkeyChaos(client_: Client, validators: ValidatorKeys[], config: MonkeyChaosConfig) {
+function pre(client_: Client, validators: ValidatorKeys[], config: MonkeyChaosConfig) {
     const sum = Object.values(config.probabilities).reduce((acc, val) => acc + val, 0);
     if (sum !== 1000) throw new Error(`Use integers between 0-1000. Probabilities must sum up to 1000. Current sum ${sum}}`);
-
+    
     if (typeof config.timer === 'number' && config.timer < 0) throw new Error('Timer must be positive');
     if (Array.isArray(config.timer) && config.timer[0] < 0) throw new Error('Timer must be positive');
     if (Array.isArray(config.timer) && config.timer[0] > config.timer[1]) throw new Error('Second timer value must be greater than first');
@@ -129,6 +129,11 @@ export async function monkeyChaos(client_: Client, validators: ValidatorKeys[], 
     const accumulativeProbabilities = Object.entries(config.probabilities).reduce((acc, [key, value], i) =>
         ({ ...acc, [key as Action]: i === 0 ? value : acc[Object.keys(acc)[i - 1] as Action] + value }), {} as Probabilities);
 
+    const report: MonkeyChaosReport = []
+    return {accumulativeProbabilities, report}
+}
+
+function preLog(validators: ValidatorKeys[], config: MonkeyChaosConfig){
     console.log(`🐒  Starting Monkey Chaos...`)
     console.log(`🐵  It will run ${config.count} in intervals of ${config.timer}s times with the following probabilities:`)
     const table = Object.entries(config.probabilities).map(([action, probability]) => {
@@ -137,14 +142,23 @@ export async function monkeyChaos(client_: Client, validators: ValidatorKeys[], 
             probability: `${(probability / 10).toFixed(2)}%`,
         }
     })
-    console.table(table, ['action', 'probability'])
+    console.table(table)
+    
+    console.log(`🐵  With the validators from the Genesis Block:`)
+    console.table(validators.map(({address, active}) => ({ address: address.address, active })))
+}
 
-    console.log(`🐵  With the validators from the genesis file:`)
-    console.table(validators.map(({address, active}) => ({ address: address.address, active })), ['address', 'active'])
-
-    const report: MonkeyChaosReport = []
-    await monkeyChaosLoop(validators, {...config, probabilities: accumulativeProbabilities}, report);
+function postLog(report: MonkeyChaosReport){
     console.log(`🐒  Monkey Chaos finished...`)
     console.log(`📝  Report:`)
     console.table(report)
+}
+
+export async function monkeyChaos(client_: Client, validators: ValidatorKeys[], config: MonkeyChaosConfig) {
+    const { accumulativeProbabilities, report } = pre(client_, validators, config);
+    preLog(validators, config);
+
+    await monkeyChaosLoop(validators, {...config, probabilities: accumulativeProbabilities}, report);
+
+    postLog(report);
 }

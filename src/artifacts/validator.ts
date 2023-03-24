@@ -69,13 +69,16 @@ export async function createValidator(client: Client): Promise<Result<NewValidat
     }
 
     return new Promise((resolve) => {
-       handleLog(client, wallet.data.address, async () => {
+       handleLog(client, wallet.data.address, async (tx) => {
            const balance = await client.account.get({address: key.address});
            if (balance.error) resolve({ error: balance.error.message, data: undefined })
        
            if (balance.data!.balance < constants.data!.validatorDeposit) {
                 resolve({ error: 'Validator balance is too low', data: undefined })
            }
+
+           console.log('New Validator tx funding: ')
+           console.log(tx)
 
            resolve({
                error: undefined,

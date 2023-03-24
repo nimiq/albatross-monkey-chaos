@@ -6,8 +6,7 @@
   "author": "onmax",
   "license": "MIT",
   "scripts": {
-    "chaos": "tsup src/main.ts --format esm --dts --out-dir dist && node ./dist/main.mjs",
-    "bls": "tsup src/bls.ts --format esm --dts --out-dir dist && node ./dist/bls.mjs"
+    "chaos": "tsup src/main.ts --format esm --dts --out-dir dist && node ./dist/main.mjs"
   },
   "dependencies": {
     "nimiq-rpc-client-ts": "^0.0.22"
