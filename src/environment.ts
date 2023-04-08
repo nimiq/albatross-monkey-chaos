@@ -1,20 +1,11 @@
-import { Address, Client } from "nimiq-rpc-client-ts"
-import { unlockKey } from "./artifacts/account"
-import donator from "./keys/donator"
-import validatorKeys from "./keys/validator-keys"
-import { Result } from "./monkey-chaos"
+import { Client } from "nimiq-rpc-client-ts"
+import { unlockKey } from "./monkey-chaos/utils"
+import { AlbatrossConfig, ValidatorKeys } from "./types"
 
-export type InstanceKey = {address: Address, address_raw?: string, public_key?: string, private_key: string}
-export type ValidatorKeys = { signing_key: InstanceKey, address: InstanceKey, reward_address: InstanceKey, active: boolean }
-
-export async function unlockGenesisValidators(client: Client): Promise<Result<ValidatorKeys[]>> {
-    const keys = validatorKeys as unknown as ValidatorKeys[]
-    const promises = keys.map(async (v) => {
-        await unlockKey(client, v.address)
-        await unlockKey(client, v.signing_key)
-        await unlockKey(client, v.reward_address)
-    })
-    await Promise.all(promises)
+export async function unlockGenesisValidators(client: Client, validators: ValidatorKeys[]) {
+    // TODO Get the correct private key for the validator
+    const result = await Promise.all(validators.map(async (v) => await unlockKey(client, {address: v.validator_address, private_key: v.signing_key})))
+    if(result.find(r => r.error)) return { error: result.find(r => r.error)!.error, data: undefined }
 
     const listReq = await client.account.list()
     if (listReq.error) return { error: listReq.error.message, data: undefined }
@@ -26,36 +17,21 @@ export async function unlockGenesisValidators(client: Client): Promise<Result<Va
 
     return {
         error: undefined,
-        data: keys.map((v) => ({...v, active: true}) as ValidatorKeys)
+        data: validators
     }
 }
 
-export type PrepareEnvironmentOptions = {
-    unlockValidators: boolean,
-    unlockDonator: boolean,
-}
+export async function prepareEnvironment(client: Client, {validators, donator}: AlbatrossConfig) {
+    // const res1 = await unlockGenesisValidators(client, validators)
+    // console.log('res1: ', res1)
+    // if (res1.error) return { error: res1.error, data: undefined }
 
-export async function prepareEnvironment<T extends PrepareEnvironmentOptions>(client: Client, options: PrepareEnvironmentOptions) {
-        let validators: ValidatorKeys[] | undefined = undefined
-        let donatorInfo: ValidatorKeys | undefined = undefined
-    
-    if (options.unlockValidators) {
-        const res = await unlockGenesisValidators(client)
-        if (res.error) return { error: res.error, data: undefined }
-        validators = res.data
-    }
-
-    if (options.unlockDonator) {
-        const res = await unlockKey(client, donator)
-        if (res.error) return { error: res.error, data: undefined }
-    }
+    const res2 = await unlockKey(client, donator)
+    console.log('res2: ', res2)
+    if (res2.error) return { error: res2.error, data: undefined }
 
     return {
         error: undefined,
-        // @ts-ignore
-        data: {
-            validators,
-            donator
-        }
+        data: true
     }
 }

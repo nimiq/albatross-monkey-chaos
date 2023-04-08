@@ -4,15 +4,22 @@
   "main": "index.js",
   "repository": "https://github.com/onmax/albatross-monkey-chaos.git",
   "author": "onmax",
+  "module": "commonjs",
   "license": "MIT",
   "scripts": {
-    "chaos": "tsup src/main.ts --format esm --dts --out-dir dist && node ./dist/main.mjs"
+    "chaos": "rm -rf dist && tsup src/main.ts --format esm --dts --out-dir dist && node ./dist/main.mjs"
   },
   "dependencies": {
-    "nimiq-rpc-client-ts": "^0.0.22"
+    "@iarna/toml": "^2.2.5",
+    "albatross-util-wasm": "^0.1.3",
+    "nimiq-rpc-client-ts": "^0.0.22",
+    "nunjucks": "^3.2.3",
+    "toml": "^3.0.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/node": "^18.15.5",
+    "@types/nunjucks": "^3.2.2",
     "tsup": "^6.7.0",
     "typescript": "^5.0.2"
   }

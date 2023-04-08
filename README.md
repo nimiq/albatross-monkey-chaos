@@ -30,7 +30,7 @@ yarn install
 
 ### Configuration
 
-Edit configuration in [config.ts](./src/config.ts) file.
+Edit configuration in [config.ts](./src/config/config.yaml) file.
 
 ### Running the tool
 

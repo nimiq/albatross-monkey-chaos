@@ -40,3 +40,5 @@ cli/tests/.test_coverage/
 /tools/wpt/certs/serial*
 
 /dist/
+
+/output/

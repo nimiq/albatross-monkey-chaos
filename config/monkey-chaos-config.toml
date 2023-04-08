@@ -1,0 +1,26 @@
+[scenario]
+# The probability of each action to be executed in each cycle
+[scenario.probabilities]
+deactivate = 500
+reactivate = 100
+create = 100
+delete = 10000
+
+# The number of cycles to run. Defaults to 10
+cycles = 2
+
+# The time to wait between cycles. Defaults to 1-10 seconds.
+timer = [10, 30]
+
+[donator]
+# Initial balance = 10_000_000_00000
+address = "NQ87 HKRC JYGR PJN5 KQYQ 5TM1 26XX 7TNG YT27"
+private_key = "3336f25f5b4272a280c8eb8c1288b39bd064dfb32ebc799459f707a0e88c4e5f"
+
+[rpcClient]
+url = "http://localhost:10200"
+
+[validator]
+configuration_template = "./src/config/node_conf.toml.j2"
+output_logs = "./output"
+node_binary_path = "../core-rs-albatross/target/debug/nimiq-client"
