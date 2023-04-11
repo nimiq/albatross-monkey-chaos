@@ -11,6 +11,7 @@ export async function unlockGenesisValidators(client: Client, validators: Valida
     if (listReq.error) return { error: listReq.error.message, data: undefined }
     const list = listReq.data!;
 
+    // TODO Move somewhere else
     console.log(`List of accounts: ${list.length}`)
     console.log(list)
     console.log('\n\n\n')
@@ -23,11 +24,9 @@ export async function unlockGenesisValidators(client: Client, validators: Valida
 
 export async function prepareEnvironment(client: Client, {validators, donator}: AlbatrossConfig) {
     // const res1 = await unlockGenesisValidators(client, validators)
-    // console.log('res1: ', res1)
     // if (res1.error) return { error: res1.error, data: undefined }
 
     const res2 = await unlockKey(client, donator)
-    console.log('res2: ', res2)
     if (res2.error) return { error: res2.error, data: undefined }
 
     return {

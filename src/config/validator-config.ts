@@ -61,7 +61,6 @@ export async function createNodeTomlFile(templatePath: string, options: CreateNo
     const renderedTemplate = nunjucks.renderString(template, params);
     toml.parse(renderedTemplate);
     const outputFile = resolve(options.output, "node_conf.toml")
-    createFolder(outputFile)
     fs.writeFileSync(outputFile, renderedTemplate)
     return outputFile
   } catch(e) {}

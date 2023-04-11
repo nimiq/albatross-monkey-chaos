@@ -1,17 +1,17 @@
 import { generateBls, generateWallet } from "albatross-util-wasm";
-import { Address, DeleteValidatorTxParams, ValidatorTxParams } from "nimiq-rpc-client-ts";
+import { exec } from "child_process";
+import { Address, DeleteValidatorTxParams, NewValidatorTxParams, RetireValidatorTxParams } from "nimiq-rpc-client-ts";
+import { resolve } from "path";
 import { createNodeTomlFile } from "../config/validator-config";
 import { Action, Result, ValidatorKeys } from "../types";
 import { MonkeyChaos } from "./MonkeyChaos";
 import { moveFunds, sleep } from "./utils";
-import { exec } from "child_process";
-import { resolve } from "path";
 
-type ActionResult = {
+export type ActionResult = {
     hash: string,
 };
 
-type Context = {
+export type Context = {
     action: Action
     address?: Address
 }
@@ -63,7 +63,6 @@ export class Actions {
 
     async createValidator() {
         const wallet = generateWallet();
-        console.log({wallet: wallet.address, privateKey: wallet.privateKey})
         const address = wallet.address as Address;
 
         const validatorN = this.monkeyChaos.pool.size() + 1;
@@ -81,26 +80,23 @@ export class Actions {
         })
     
         const importKey = await MonkeyChaos.client.account.importRawKey({keyData: wallet.privateKey});
-        console.log({importKey})
         if (importKey.error) return { error: importKey.error.message, data: undefined }
     
         const isImported = await MonkeyChaos.client.account.isImported({ address });
-        console.log({isImported})
         if (isImported.error) return { error: isImported.error.message, data: undefined }
     
         const unlock = await MonkeyChaos.client.account.unlock({ address });
-        console.log({unlock})
         if (unlock.error) return { error: unlock.error.message, data: undefined }
     
         const constants = await MonkeyChaos.client.constant.params();
-        console.log({constants})
         if (constants.error) return { error: constants.error.message, data: undefined }
     
         const tx = await moveFunds(MonkeyChaos.client, this.monkeyChaos.donator.address, address, constants.data!.validatorDeposit)
-        console.log({tx})
         if (tx.error) return { error: tx.error.message, data: undefined }
-    
-        const params: ValidatorTxParams = {
+
+        await sleep(3000)
+
+        const params: NewValidatorTxParams = {
             fee: 0,
             relativeValidityStartHeight: 4,
             senderWallet: address,
@@ -112,21 +108,12 @@ export class Actions {
         }
 
         const albatrossPath = resolve(process.cwd(), 'config/albatross-config.toml')
-        console.log({albatrossPath})
         process.env.NIMIQ_OVERRIDE_DEVNET_CONFIG = albatrossPath
-        console.log(`executing ${this.monkeyChaos.binPath} -c ${confFile}`)
-        exec(`${this.monkeyChaos.binPath} -c ${confFile} > ${outputPath}/validator.log 2>&1 &`, (err, stdout, stderr) => {
-            if (err) {
-                console.log(err)
-                return;
-            }
-            console.log(stdout)
-        })
+        exec(`${this.monkeyChaos.binPath} -c ${confFile} > ${outputPath}/validator.log 2>&1 &`)
 
         await sleep(5000)
 
         const newValidator = await MonkeyChaos.client.validator.action.new.sendTx(params)
-        console.log({newValidator})
         if (newValidator.error) return { error: newValidator.error.message, data: undefined }
         
         return {
@@ -144,6 +131,29 @@ export class Actions {
     }
 
     async removeValidator({ validator_address }: ValidatorKeys) {
+        await this.monkeyChaos.report.printCurrentActiveValidators()
+        const paramsRetire: RetireValidatorTxParams = {
+            senderWallet: validator_address,
+            validator: validator_address,
+            relativeValidityStartHeight: 4,
+            fee: 0,
+        }
+
+        const retireTx = await MonkeyChaos.client.validator.action.retire.sendTx(paramsRetire);
+        if (retireTx.error) return { error: retireTx.error.message, data: undefined }
+
+        const { next, close } = await MonkeyChaos.client.logs.subscribe({ addresses: [ validator_address ]});
+        await new Promise((resolve) => {
+            next((log) => { 
+                if (log.data?.transactions.some(tx => tx.logs.filter(l => l.type === 'retire-validator'))) {
+                    console.log(`-------------------------- 💃💃💃💃💃💃💃💃💃💃💃💃💃💃 Retiureed!!!!!!!`)
+                    console.log(log)
+                    resolve(true);
+                    close();
+                }
+            })
+        })
+
         const params: DeleteValidatorTxParams = {
             fee: 0,
             relativeValidityStartHeight: 4,

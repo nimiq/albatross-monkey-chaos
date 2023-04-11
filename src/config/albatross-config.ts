@@ -47,7 +47,6 @@ export function getAlbatrossConfig(config: string): AlbatrossConfig {
 
 export function parse(tomlData: object): Result<AlbatrossConfig> {
   const parsedData = devAlbatrossConfigSchema.parse(tomlData);
-  console.log(parsedData);
 
   const donator = parsedData.accounts.find((account) => account.private_key);
   if (!donator) {

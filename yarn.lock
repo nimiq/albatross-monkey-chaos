@@ -550,10 +550,10 @@ mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nimiq-rpc-client-ts@^0.0.22:
-  version "0.0.22"
-  resolved "https://registry.npmjs.org/nimiq-rpc-client-ts/-/nimiq-rpc-client-ts-0.0.22.tgz"
-  integrity sha512-dNWnjZ2WGlvuIcpjgQxJ1HCXBX8omWuQES2loKUpquUhr98/Z9H4rZYFHvzWQAb+499nAEEzJV4cVdspzwGmgg==
+nimiq-rpc-client-ts@0.0.28:
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/nimiq-rpc-client-ts/-/nimiq-rpc-client-ts-0.0.28.tgz#f261d9c2657a018e473f21e51421da5e413b82f4"
+  integrity sha512-Mad/uxPPKGZReCxeE1Br6+K6knNb+Wz0KsmslRTmuYYwQjKPI/D8TuOp6yVRb/z9RwnblmwfPFkjMyeNAkSZCw==
   dependencies:
     node-fetch "^3.3.1"
     rpc-websockets "^7.5.1"

@@ -1,16 +1,17 @@
 [scenario]
-# The probability of each action to be executed in each cycle
-[scenario.probabilities]
-deactivate = 500
-reactivate = 100
-create = 100
-delete = 10000
-
 # The number of cycles to run. Defaults to 10
-cycles = 2
+cycles = 15
 
 # The time to wait between cycles. Defaults to 1-10 seconds.
-timer = [10, 30]
+timer = 1
+
+# The probability of each action to be executed in each cycle
+[scenario.probabilities]
+deactivate = 1000
+reactivate = 1000
+create = 1
+delete = 2000
+
 
 [donator]
 # Initial balance = 10_000_000_00000
