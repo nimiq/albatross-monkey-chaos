@@ -1,0 +1,36 @@
+[network]
+listen_addresses = [
+    "/ip4/127.0.0.1/tcp/33529/ws",
+]
+seed_nodes = [
+    { address = "/ip4/127.0.0.1/tcp/9100/ws" }
+]
+peer_key_file = "/home/max/nimiq/albatross/monkey-chaos/undefined/undefined/state/peer_key.dat"
+
+[consensus]
+network = "dev-albatross"
+sync_mode = "history"
+
+[database]
+path = "/home/max/nimiq/albatross/monkey-chaos/undefined/undefined/state"
+
+[log]
+level = "trace"
+timestamps = true
+
+[log.tags]
+libp2p_swarm = "debug"
+lock_api = "trace"
+
+[validator]
+validator_address = "NQ30 E1LK YSTJ NXSR T5PX YRR6 5NQQ C1L4 JDL5"
+signing_key = "b0f3208724c7c9c3027401c48c396c525659ac8ed5bf74c6a51a00f96e6edf2a"
+signing_key_file = "/home/max/nimiq/albatross/monkey-chaos/undefined/undefined/state/signing_key.dat"
+voting_key = "ad62bdcc7ea8c58aff91e6d5be7818944a7313faccd4dd34c0675fd8e2957875ecf58d6620b87f3f72b4ce894158c1f327235929fbc6e2566fa6277f6e835fe2cabb9129b555dfc9b0dba2cc3e6f2eebbc0ff317ebc8c0018a233bb3e57201"
+voting_key_file = "/home/max/nimiq/albatross/monkey-chaos/undefined/undefined/state/voting_key.dat"
+fee_key = "0ed7d09b3304afd6d2f237a0d16013e43f901deb2bcb889d3278534393db766e"
+fee_key_file = "/home/max/nimiq/albatross/monkey-chaos/undefined/undefined/state/fee_key.dat"
+
+[rpc-server]
+bind="127.0.0.1"
+port = 12354

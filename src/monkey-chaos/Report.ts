@@ -1,10 +1,11 @@
 import { createWriteStream, writeFileSync, type WriteStream } from 'fs';
-import { Address } from "nimiq-rpc-client-ts";
+import { Address, PolicyConstants } from "nimiq-rpc-client-ts";
 import { Writable } from "stream";
-import { Action } from "../types";
+import { MonkeyChaosExecution, MonkeyChaosEvent, MonkeyChaosEventsDict, State, TransferParams } from "../types.d";
 import { MonkeyChaos } from "./MonkeyChaos";
-import { Transaction } from 'nimiq-rpc-client-ts';
-import { MaybeCallResponse } from 'nimiq-rpc-client-ts';
+import { getTime } from './utils';
+import { Edge } from './validator-state-machine/StateMachine';
+import { Validator } from './validator-state-machine/Validator';
 
 class TeeStream extends Writable {
     private fileStream: WriteStream;
@@ -29,152 +30,135 @@ class TeeStream extends Writable {
         this.fileStream.end(callback);
     }
 
-    table(data: any): void {
+    table(data: any, properties?: ReadonlyArray<string>): void {
         const originalConsoleLog = console.log;
         console.log = (...args: any[]) => {
             this.write(args.join(' ') + '\n');
         };
 
-        console.table(data);
+        console.table(data, properties);
         console.log = originalConsoleLog;
     }
 }
 
-export type MonkeyChaosEvent = {
-    action: Action,
-    address?: Address,
-    network: string,
-    time: string,
-    sucess: '✅' | '❌'
-    error?: string,
-    hash: string
-    tx?: MaybeCallResponse<Transaction>
-}[]
+const emoji = {
+    'info': '🐒',
+    'debug': '🙉',
+    'trace': '🙈',
+    'milestone': '🐵',
+    'success': '✅',
+    'error': '❌',
+} as const;
 
 type LogParams = {
-    emoji?: string,
+    type?: keyof typeof emoji,
     message: string,
-    error?: string,
     time?: boolean | string,
+    details?: string[]
+    tabs?: number
+}
+
+
+function getEmoji(type?: keyof typeof emoji) {
+    return type ? `${emoji[type]}  ` : '';
 }
 
 export class Report {
     monkeyChaos: MonkeyChaos;
-    events: Record<Address, MonkeyChaosEvent> = {};
     tee: TeeStream;
 
     constructor(monkeyChaos: MonkeyChaos) {
         this.monkeyChaos = monkeyChaos;
-        const output = `${monkeyChaos.output}/monkey-chaos.log`;
+        const output = `${MonkeyChaos.output}/monkey-chaos.log`;
         this.tee = new TeeStream(output);
     }
 
-    async getNetworkInfo() {
-        const block = (await MonkeyChaos.client.block.current()).data!;
-        const batch = (await MonkeyChaos.client.batch.current()).data!;
-        const epoch = (await MonkeyChaos.client.epoch.current()).data!;
-        return `${block}/${batch}/${epoch}`
-    }
-
-    async addEvent(action: Action, address: Address = 'NQ00 Creator', hash?: string, error?: string) {
-        if (!this.events[address]) this.events[address] = [];
-        this.events[address].push({
-            sucess: error ? '❌' : '✅',
-            action,
-            address,
-            network: await this.getNetworkInfo(),
-            time: this.getTime(),
-            error,
-            hash: hash || ''
-        })
-    }
-
-    getTime(timestamp = new Date()) {
-        const ms = `00${timestamp.getMilliseconds()}`.slice(-3);
-        return `${timestamp.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/:/g, ':')}:${ms}`
-    }
-
-    log({emoji, message, error, time}: LogParams) {
-        const withTime = time !== false;
-        const pre = (withTime ? `[${typeof time === 'string' ? time : this.getTime()}] ` : '') + (emoji ? `${emoji}  ` : '');
-        this.tee.write(`${pre}${message}\n`);
-        if (error) {
-            this.tee.write(`\t❌ ${error} ❌\n`)
+    log(params: LogParams | string) {
+        if (typeof params === 'string') {
+            this.tee.write(`${params}\n`);
+            return;
         }
-        return time;
+
+        const { type, message, time, details, tabs } = params
+        const tabsStr = tabs ? '\t'.repeat(tabs) : '';
+        const withTime = time !== false;
+        const pre = (withTime ? `[${typeof time === 'string' ? time : getTime()}] ` : '') + tabsStr + (type ? getEmoji(type) : '');
+        this.tee.write(`${pre}${message}\n`);
+
+        for (const detail of details || []) {
+            if (detail.trim() === '') continue;
+            this.tee.write(tabsStr + `\t➡️  ${detail}\n`);
+        }
     }
 
-    print() {
-        const active = Array.from(this.monkeyChaos.pool.active).map(({ validator_address: validator }) => ({ validator, status: 'active' }));
-        const requestedToDeactivate = Array.from(this.monkeyChaos.pool.requestedDeactivate).map(({ validator_address: validator }) => ({ validator, status: 'requestedToBeDeactivated' }));
-        const deactivate = Array.from(this.monkeyChaos.pool.deactivate).map(({ validator_address: validator }) => ({ validator, status: 'deactivated' }));
-        const deleted = Array.from(this.monkeyChaos.pool.deleted).map(({ validator_address: validator }) => ({ validator, status: 'deleted' }));
-        const allValidators = active.concat(requestedToDeactivate).concat(deactivate).concat(deleted);
-        this.tee.table(allValidators);
-    }
+    async printInitialState(policy: PolicyConstants) {
+        this.log({ type: 'info', message: 'Starting Monkey Chaos...' })
 
-    printProbabilities() {
-        const probabilities = this.monkeyChaos.pool.getProbabilities()
-        const percentages = probabilities
-            .map(({ action, range }) => ({ action, sum: range[1] - range[0] }))
-            .map(({ action, sum }) => ({ action, percentage: ((sum / probabilities.at(-1)!.range[1]) * 100).toFixed(3) + '%' }))
-        this.tee.table(percentages);
-    }
-
-    async printCurrentActiveValidators() {
-        const activeSet = await MonkeyChaos.client.validator.activeList();
-        if (activeSet.error) return { error: activeSet.error.message, data: undefined }
-        const validators = activeSet.data!.map(v => v.address).join(', ');
-        this.log({ emoji: '🙈', message: 'Current active validators:' })
-        this.tee.table(validators)
-    }
-
-    async printInitialState() {
-        this.log({emoji: '🐒', message: 'Starting Monkey Chaos...'})
-
-        const policy = await MonkeyChaos.client.constant.params();
-        if (policy.error) throw new Error(policy.error.message);
-        this.log({emoji: '🐵', message: 'The current policy is:', time: false})
-        this.tee.table(policy.data)
+        this.log({ type: 'debug', message: 'The current policy is:', time: false })
+        this.tee.table(policy)
 
         const timer = this.monkeyChaos.timer
         const timerStr = typeof timer === 'number' ? timer : timer.join('-')
 
-        this.log({emoji: '🐵', message: `It will run ${this.monkeyChaos.cycles} in intervals of ${timerStr}s times`})
+        this.log({ type: 'debug', message: `It will run ${this.monkeyChaos.cycles} in intervals of ${timerStr}s times` })
 
-        this.log({emoji: '🐵', message: 'The state of the validators is:'})
-        this.print()
+        this.log({ type: 'debug', message: 'The current state machine goes as follows:' })
+        this.printItemsWithDetails()
     }
 
-    printReport() {
-        this.log({emoji: '📝', message: `Report`, time: false})
-        for (const address in this.events) {
-            this.log({message: `${address}:`, time: false})
-            for (const event of this.events[address as Address] || []) {
-                this.log({ message: `\t\t${event.action} ${event.sucess} ${event.network}`, time: event.time })
-                if(event.error) {
-                    this.log({ message: `\t\t${event.error}`, time: false})
-                }
-                this.log({ message: `\t\t${event.hash}`, time: false})
-                this.log({ message: '-----------------------------', time: false})
-            }
-        }
-        
-        const table = Object.entries(this.events).map(([address, events]) => ({ address, events: events.length }))
-        this.tee.table(table)
+    printReport(validator: Validator[]) {
+        this.log('📝  Report')
+        this.printItemsWithDetails()
+
+        validator.forEach(validator => {
+            this.log(`🎉  Events ${validator.name} ${validator.address}`)
+            validator.events.forEach((e) => {
+                const detail = e.error ? e.error : e.tx!.hash
+                this.log({ type: 'info', message: `- ${e.action} (${e.states[0]} -> ${e.states[1]}). (${e.index})`, time: e.time, details: [detail], tabs: 1 })
+            })
+        })
     }
 
-    async printBalance(address: Address, alias?: string) {
-        const result = await MonkeyChaos.client.account.getBy({ address });
-        if (result.error) this.log({ emoji: '❌', message: 'Error getting ${address}(${alias}) funds', error: result.error.message})
-        this.log({ emoji: '💰', message: `${address}(${alias}) has ${result.data!.balance / 1e-5} NIM` })
+    async printInitialEvent(event: MonkeyChaosExecution) {
+        const { action, validator, index } = event
+        const { address } = validator;
+
+        this.log({ type: 'info', message: `Monkey chose to ${action} ${validator.name} ${address}` });
+    }
+
+    async printEvent(event: MonkeyChaosEvent) {
+        const { action, error, validator, states, tx } = event
+        this.log({ type: error ? 'error' : 'success', message: `Monkey chose to ${action}(${states[0]}->${states[1]}) ${validator.name} ${validator.address}`, details: error ? [error] : [tx!.hash] });
+        this.printItemsWithDetails();
     }
 
     async saveEvents() {
-        MonkeyChaos.client.transaction.getBy({hash: ''})
-        await Promise.all(Object.values(this.events)
-            .flat()
-            .map(async (event) => event.tx = await MonkeyChaos.client.transaction.getBy({ hash: event.hash })))
-        writeFileSync(`${this.monkeyChaos.output}/monkey-chaos-events.json`, JSON.stringify(this.events, null, 2))
+        const validators = Array.from(MonkeyChaos.selector.nodes.values()).map(node => node.items).flat()
+
+        const events = new Map<Address, MonkeyChaosEvent[]>;
+        for (const v of validators) events.set(v.address, v.events)
+
+        writeFileSync(`${MonkeyChaos.output}/monkey-chaos-events.json`, JSON.stringify(events, null, 2))
+    }
+
+    printItemsWithDetails(): void {
+        const table = MonkeyChaos.selector.printItemsWithDetails((v: Validator) => `${v.name} | ${v.address}`)
+        this.tee.table(table);
+    }
+
+    async printTransfer({ wallet, recipient, value }: TransferParams) {
+        const senderAccount = await MonkeyChaos.client.account.getBy({ address: wallet });
+        const recipientAccount = await MonkeyChaos.client.account.getBy({ address: recipient });
+
+        const message = `Transfer ${value} from ${wallet} to ${recipient}`;
+
+        if (senderAccount.error || recipientAccount.error) {
+            const details = [senderAccount.error?.message || recipientAccount.error?.message].filter(Boolean) as string[]
+            this.log({ type: 'error', message, details })
+        }
+        const senderBalance = senderAccount.data!.balance;
+        const recipientBalance = recipientAccount.data!.balance;
+
+        this.log({ type: 'debug', message, details: [`Sender: ${senderBalance} | Recipient: ${recipientBalance}`], tabs: 1 })
     }
 }

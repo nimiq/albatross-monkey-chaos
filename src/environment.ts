@@ -4,7 +4,7 @@ import { AlbatrossConfig, ValidatorKeys } from "./types"
 
 export async function unlockGenesisValidators(client: Client, validators: ValidatorKeys[]) {
     // TODO Get the correct private key for the validator
-    const result = await Promise.all(validators.map(async (v) => await unlockKey(client, {address: v.validator_address, private_key: v.signing_key})))
+    const result = await Promise.all(validators.map(async (v) => await unlockKey(client, v.signing_key)))
     if(result.find(r => r.error)) return { error: result.find(r => r.error)!.error, data: undefined }
 
     const listReq = await client.account.list()
@@ -22,11 +22,11 @@ export async function unlockGenesisValidators(client: Client, validators: Valida
     }
 }
 
-export async function prepareEnvironment(client: Client, {validators, donator}: AlbatrossConfig) {
+export async function prepareEnvironment(client: Client, {/*validators, */donator}: AlbatrossConfig) {
     // const res1 = await unlockGenesisValidators(client, validators)
     // if (res1.error) return { error: res1.error, data: undefined }
 
-    const res2 = await unlockKey(client, donator)
+    const res2 = await unlockKey(client, donator.private_key)
     if (res2.error) return { error: res2.error, data: undefined }
 
     return {

@@ -2,22 +2,12 @@ import * as toml from '@iarna/toml';
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
-import { MonkeyChaosConfig, Result } from '../types';
+import { MonkeyChaosConfig, Result, Action } from '../types.d';
 
 const monkeyChaosConfigSchema = z.object({
-  probabilities: z
-    .object({
-      deactivate: z.number(),
-      reactivate: z.number(),
-      create: z.number(),
-      delete: z.number(),
-    })
-    .default({
-      deactivate: 250,
-      reactivate: 250,
-      create: 250,
-      delete: 250,
-    }),
+  weights: z.record(z.number()).refine((weights) => Object.keys(weights).every((key) => Object.values(Action).includes(key as Action)), {
+    message: 'Invalid action in weights'
+  }),
   cycles: z.number().int().default(10),
   timer: z
     .tuple([z.number(), z.number()])
@@ -53,7 +43,7 @@ export function getMonkeyChaosConfig(relativeFilePath: string): MonkeyChaosConfi
   const fileContents = fs.readFileSync(filePath, 'utf-8');
   const tomlData = toml.parse(fileContents) as object;
   const parsedData = schema.parse(tomlData) as MonkeyChaosConfig;
-  const {error} = validConfig(parsedData);
+  const { error } = validConfig(parsedData);
   if (error) throw new Error(error);
   return parsedData;
 }
@@ -67,21 +57,21 @@ export function validConfig(parsedData: MonkeyChaosConfig): Result<boolean> {
       parsedData.scenario.timer[0] < parsedData.scenario.timer[1]);
 
   if (!timerValid) {
-    return { error: 'Timer value is not valid.', data: undefined }
+    return { error: 'Timer value is not valid.', data: undefined };
   }
 
   const countValid = parsedData.scenario.cycles > 0;
 
   if (!countValid) {
-    return { error: 'Error: Count value must be positive.', data: undefined }
+    return { error: 'Error: Count value must be positive.', data: undefined };
   }
 
   if (parsedData.validator) {
     const templateValid = parsedData.validator.configuration_template.length > 0;
     if (!templateValid) {
-      return { error: 'Validator configuration template path is not valid.', data: undefined }
+      return { error: 'Validator configuration template path is not valid.', data: undefined };
     }
   }
 
-  return { error: undefined, data: true }
+  return { error: undefined, data: true };
 }

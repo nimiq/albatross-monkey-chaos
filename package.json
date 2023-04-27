@@ -7,14 +7,17 @@
   "module": "commonjs",
   "license": "MIT",
   "scripts": {
-    "chaos": "rm -rf dist && tsup src/main.ts --format esm --dts --out-dir dist && node ./dist/main.mjs"
+    "chaos": "rm -rf dist && tsup src/main.ts --format esm --dts --out-dir dist && node ./dist/main.mjs",
+    "test": "vitest",
+    "dev": "vitest --watch"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
     "albatross-util-wasm": "^0.1.3",
-    "nimiq-rpc-client-ts": "0.0.28",
+    "nimiq-rpc-client-ts": "../rpc-client/",
     "nunjucks": "^3.2.3",
     "toml": "^3.0.0",
+    "vitest": "^0.30.1",
     "zod": "^3.21.4"
   },
   "devDependencies": {

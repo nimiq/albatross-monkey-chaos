@@ -1,198 +1,199 @@
-import { Address, Client, MacroBlock } from "nimiq-rpc-client-ts";
+import { Client, PartialMacroBlock, PolicyConstants } from "nimiq-rpc-client-ts";
 import { resolve } from "path";
 import { Config } from "../config";
-import { Action, Result } from "../types";
-import { ActionResult, Actions, Context } from "./Actions";
+import { State } from "../types.d";
+import { Actions } from "./Actions";
 import { Report } from "./Report";
-import { ValidatorsPool } from "./ValidatorsPool";
-import { createOuputFolder, sleep } from "./utils";
-import { parseTxData } from "albatross-util-wasm";
+import { createOuputFolder, getRandomSeconds, sleep } from "./utils";
+import { getSelector } from "./validator-state-machine";
+import { Selector } from "./validator-state-machine/Selector";
+import { Validator } from "./validator-state-machine/Validator";
 
 export class MonkeyChaos {
     static client: Client;
-    pool: ValidatorsPool;
-    actions: Actions;
-    report: Report;
-    monkeyChaosConfig: Config["monkeyChaosConfig"];
-    albatrossConfig: Config["albatrossConfig"];
-    output: string;
+    static output: string;
+    static selector: Selector<Validator>;
+    static actions: Actions;
+    static report: Report;
+    static monkeyChaosConfig: Config["monkeyChaosConfig"];
+    static albatrossConfig: Config["albatrossConfig"];
+    static policyConstants: PolicyConstants;
+    postCycle: Function[] = [];
 
     constructor(client: Client, { albatrossConfig, monkeyChaosConfig }: Config) {
         const { scenario } = monkeyChaosConfig;
         MonkeyChaos.client = client;
-        this.pool = new ValidatorsPool(scenario.probabilities);
-        this.actions = new Actions(this);
-        this.output = createOuputFolder(monkeyChaosConfig.validator.output_logs).data!;
-        this.report = new Report(this);
-        this.monkeyChaosConfig = monkeyChaosConfig;
-        this.albatrossConfig = albatrossConfig;
+        MonkeyChaos.selector = getSelector(Object.values(scenario.weights));
+        MonkeyChaos.actions = new Actions(this);
+        MonkeyChaos.output = createOuputFolder(monkeyChaosConfig.validator.output_logs).data!;
+        MonkeyChaos.report = new Report(this);
+        MonkeyChaos.monkeyChaosConfig = monkeyChaosConfig;
+        MonkeyChaos.albatrossConfig = albatrossConfig;
     }
 
     async init() {
-        await this.report.printInitialState();
+        const policy = await MonkeyChaos.client.constant.params();
+        if (policy.error) throw new Error(`Error getting policy constants: ${policy.error.message}`);
 
-        const { next, close } = await MonkeyChaos.client.block.subscribe({ filter: 'FULL' });
-        this.pool = new ValidatorsPool(this.probabilities);
-        // this.genesisValidators.forEach(v => this.pool.changeValidatorStatus(v, 'active')); // all genesis validators are considered active
-        next((block) => {
-            if ((block.data as MacroBlock).isElectionBlock) {
-                this.report.log({ emoji: '🎉🎉🎉', message: `Election block (epoch ${(block.data as MacroBlock).epoch}) reached. Processing ${this.pool.requestedDeactivate.size} deactivations...` });
-                this.pool.processDeactivate();
-            }
-        });
+        MonkeyChaos.policyConstants = policy.data!;
+        await MonkeyChaos.report.printInitialState(MonkeyChaos.policyConstants);
 
-        await this.loop()
-        close();
+        const closeAsyncDeactivated = await this.asyncDeactivate();
+        const closeAsyncDelete = await this.asyncDelete();
 
-        await this.fillEventsWithTx();
-        this.report.printReport();
-        this.report.saveEvents();
+        await this.loop();
 
-        this.report.log({ emoji: '🐒', message: 'Monkey Chaos finished...' });
+        MonkeyChaos.selector.getAllItems().forEach(v => v.killProcess())
+
+        closeAsyncDeactivated();
+        closeAsyncDelete();
+
+        MonkeyChaos.report.printReport(MonkeyChaos.selector.getAllItems());
+        MonkeyChaos.report.saveEvents();
+
+        MonkeyChaos.report.log({ type: 'info', message: 'Monkey Chaos finished...' });
     }
 
-    get donator() {
+    static get donator() {
         return this.albatrossConfig.donator;
     }
 
     get cycles() {
-        return this.monkeyChaosConfig.scenario.cycles;
+        return MonkeyChaos.monkeyChaosConfig.scenario.cycles;
     }
 
     set cycles(cycles: number) {
-        this.monkeyChaosConfig.scenario.cycles = cycles;
+        MonkeyChaos.monkeyChaosConfig.scenario.cycles = cycles;
     }
 
     get genesisValidators() {
-        return this.albatrossConfig.validators;
+        return MonkeyChaos.albatrossConfig.validators;
     }
 
     get timer() {
-        return this.monkeyChaosConfig.scenario.timer;
+        return MonkeyChaos.monkeyChaosConfig.scenario.timer;
     }
 
-    get probabilities() {
-        return this.monkeyChaosConfig.scenario.probabilities;
+    get weights() {
+        return MonkeyChaos.monkeyChaosConfig.scenario.weights;
     }
 
-    get binPath() {
-        const relativePath = this.monkeyChaosConfig.validator.node_binary_path;
+    static get binPath() {
+        const relativePath = MonkeyChaos.monkeyChaosConfig.validator.node_binary_path;
         return resolve(process.cwd(), relativePath);
+    }
+
+    static get stakingContract() {
+        return MonkeyChaos.policyConstants.stakingContractAddress;
     }
 
     async loop() {
         while (this.cycles > 0) {
             this.cycles--;
-            const cycleStatus = await this.actions.run()
-            this.handleState(cycleStatus);
-            await sleep(this.getRandomSeconds());
-        }
-    }
 
-    async handleState({ action, data, error, address }: Result<ActionResult> & Context) {
-        console.group(`\n\n🐒  Monkey Chaos Loop (${this.cycles})`)
-        this.report.printProbabilities()
-        this.report.log({ emoji: '🙊', message: `Monkey chose to ${action} validator ${address || ''}` });
+            const initialEvent = await MonkeyChaos.actions.getExecution();
+            MonkeyChaos.report.printInitialEvent(initialEvent);
 
+            const event = await MonkeyChaos.actions.run(initialEvent)
+            MonkeyChaos.report.printEvent(event);
 
-        if (action === 'create') {
-            await this.report.printBalance(this.donator.address, 'donator');
-            await this.report.printBalance(address!, 'New validator');
-        }
+            this.postCycle.forEach(f => f());
+            this.postCycle = [];
 
-        await this.report.addEvent(action, address, data?.hash || '', error);
-
-        if (error) {
-            this.report.log({ emoji: '🙊', message: `Monkey failed to ${action} with error: ${error}` });
-        }
-
-        this.report.print();
-        this.report.log({ emoji: '🙈', message: `Sleeping for ${this.timer} seconds...` });
-
-        console.groupEnd()
-    }
-
-    async run(): Promise<Result<ActionResult> & Context> {
-        const { action, validator, onSucess } = this.pool.getVictim();
-        const address = validator?.validator_address
-        switch (action) {
-            case 'deactivate':
-                const deactivateRes = await this.actions.sendTx('deactivate', validator)
-                if (deactivateRes.data) {
-                    onSucess();
-                    return { data: { hash: deactivateRes.data.hash }, address, action, error: undefined }
-                }
-                return { data: undefined, action, error: deactivateRes.error, address }
-            case 'reactivate':
-                const reactivateRes = await this.actions.sendTx('reactivate', validator)
-                if (reactivateRes.data) {
-                    onSucess();
-                    return { data: { hash: reactivateRes.data.hash }, address, action, error: undefined }
-                }
-                return { data: undefined, action, error: reactivateRes.error, address }
-            case 'create':
-                const createValidatorRes = await this.actions.createValidator()
-                if (createValidatorRes.data) {
-                    onSucess(createValidatorRes.data.validator);
-                    return { data: { hash: createValidatorRes.data.hash }, address: createValidatorRes.data.validator.validator_address, action, error: undefined }
-                }
-                return { data: undefined, action, error: createValidatorRes.error, address }
-            case 'delete':
-                const deleteRes = await this.actions.removeValidator(validator)
-                if (deleteRes.data) {
-                    onSucess();
-                    return { data: { hash: deleteRes.data.hash }, address, action, error: undefined }
-                }
-                return { data: undefined, action, error: deleteRes.error, address }
-        }
-    }
-
-    getRandomSeconds() {
-        const timer = this.timer;
-        let randomTime: number;
-        if (typeof timer === 'number') randomTime = timer;
-        else randomTime = Math.floor(Math.random() * (timer[1] - timer[0])) + timer[0];
-        return randomTime * 1000;
-    }
-
-    async fillEventsWithTx() {
-        const events = this.report.events;
-        for (const address in events) {
-            for (const event of events[address as Address]) {
-                const res = await MonkeyChaos.client.transaction.getBy({ hash: event.hash });
-                event.tx = res;
-                if (res.error) {
-                    event.sucess = '❌'
-                    event.error = event.error ? `${event.error}. Error while fetching hash: ${res.error.message}}` : res.error.message
-                }
+            if (this.cycles > 0) {
+                const sleepTime = getRandomSeconds(this.timer);
+                MonkeyChaos.report.log({ type: 'info', message: `Sleeping for ${sleepTime / 1000} seconds...` });
+                await sleep(sleepTime);
             }
         }
     }
 
-    // Check all transactions from the staking contract
-    // async check(): Promise<Result<boolean>> {
-    //     const trackedValidators = Object.keys(this.report.events) as Address[];
+    /**
+     * Deactivated validators change its status once the epoch reach to an end, which is when an election block is reached.
+     * Then, it is when the validator is actually deactivated.
+     */
+    private async asyncDeactivate() {
+        const { next, close } = await MonkeyChaos.client.block.subscribe({ retrieve: 'PARTIAL', blockType: 'ELECTION' });
 
-    //     const expect = new Map<Address, { action: string, data?: string }[]>();
-    //     for (const [address, events] of Object.entries(this.report.events)) {
-    //         expect.set(address as Address, events.map(({ action, tx }) => ({ action, data: tx?.data?.data })));
-    //     }
+        next((block) => {
+            if (block.error) return MonkeyChaos.report.log({ type: 'error', message: `Error while subscribing to election blocks`, details: [block.error.message] })
 
-    //     const c = MonkeyChaos.client;
-    //     const reqStakingAddress = (await c.constant.params());
-    //     if (reqStakingAddress.error) return { error: reqStakingAddress.error.message, data: undefined };
+            const blockStr = `${block.data.epoch}/${block.data.batch}/${block.data.number}`;
+            MonkeyChaos.report.log({
+                type: 'milestone',
+                message: `Election block (${blockStr})`
+            });
 
-    //     const txs = await c.transaction.get({ address: reqStakingAddress.data.stakingContractAddress });
-    //     if (txs.error) return { error: txs.error.message, data: undefined };
+            function performDeactivation() {
+                const node = MonkeyChaos.selector.nodes.get(State.WAITING_DEACTIVATION)!;
+                MonkeyChaos.report.log({
+                    type: 'milestone',
+                    message: `Deactiving ${node.items.length} validators`,
+                    details: [node.items.map(v => v.address).join(', ')]
+                });
 
-    //     const got = new Map<Address, { action: string, data?: string }[]>();
-    //     for (const tx of txs.data.filter(({from}) => trackedValidators.includes(from))) {
-    //         const actionStr = parseTxData(tx.data);
-    //         let action: Action
-    //         switch (actionStr) {
-    //             case 'CreateValidator': action = 'create'; break;
-    //     }
+                node.items.forEach(v => {
+                    const result = MonkeyChaos.selector.moveItem(v, State.DEACTIVATED)
+                    if (result.error) {
+                        MonkeyChaos.report.log({
+                            type: 'error',
+                            message: `Error while moving validator from ${v.address} to ${State.DEACTIVATED}`,
+                            details: [result.error]
+                        });
+                    }
+                });
+            }
 
-    //     return { error: undefined, data: true };
-    // }
+            this.postCycle.push(performDeactivation);
+        });
+
+        return close;
+    }
+
+    /**
+     * To delete validators, we need to wait until the first macro block of an epoch
+     */
+    private async asyncDelete() {
+        const { next, close } = await MonkeyChaos.client.block.subscribe({ retrieve: 'PARTIAL', blockType: 'MACRO' });
+
+        const { blocksPerBatch, blocksPerEpoch, batchesPerEpoch } = MonkeyChaos.policyConstants
+        function isFirstMacroBlockOfEpoch({ epoch, number: block }: PartialMacroBlock) {
+            return block === (epoch * blocksPerEpoch) - (batchesPerEpoch - 1) * blocksPerBatch;
+        }
+
+        next(async (block) => {
+            if (block.error) return MonkeyChaos.report.log({ type: 'error', message: `Error while subscribing to election blocks`, details: [block.error.message] })
+            if (!isFirstMacroBlockOfEpoch(block.data!)) return;
+
+            const blockStr = `${block.data.epoch}/${block.data.batch}/${block.data.number}`;
+            MonkeyChaos.report.log({
+                type: 'milestone',
+                message: `First MacroBlock (${blockStr})`,
+            });
+
+            function performDeactivation() {
+                const node = MonkeyChaos.selector.nodes.get(State.RETIRED)!;
+                MonkeyChaos.report.log({
+                    type: 'milestone',
+                    message: `Deleting ${node.items.length} validators`,
+                    details: [node.items.map(v => v.address).join(', ')]
+                });
+
+                node.items.forEach(v => {
+                    const node = MonkeyChaos.selector.getNodeByItem(v);
+                    if (node.data?.node.state !== State.DELETED) {
+                        MonkeyChaos.report.log({
+                            type: 'error',
+                            message: `Error while deleting validator ${v.address}`,
+                            details: [`The error in the last event: ${v.events.at(-1)?.error}`]
+                        });
+                    }
+                });
+            }
+
+            this.postCycle.push(performDeactivation);
+        });
+
+        return close;
+    }
 }

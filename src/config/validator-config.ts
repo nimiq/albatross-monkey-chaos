@@ -5,15 +5,11 @@ import net from 'net';
 import { createFolder } from '../monkey-chaos/utils';
 import { resolve } from "path"
 import { z } from 'zod';
+import { Validator } from '../monkey-chaos/validator-state-machine/Validator';
 
 export interface CreateNodeTomlOptions {
   output: string;
-  validator: {
-    validator_address: string;
-    signing_key: string;
-    voting_key: string;
-    fee_key: string;
-  };
+  validator: Validator;
 }
 
 export interface CreateNodeTomlParams {
@@ -53,7 +49,12 @@ export async function createNodeTomlFile(templatePath: string, options: CreateNo
     rpc_port: await findFreePort(),
     seed_port: await findFreePort(),
     state_path: state_path.data!,
-    validator: options.validator,
+    validator: {
+      fee_key: options.validator.feeKey,
+      voting_key: options.validator.votingKey,
+      signing_key: options.validator.signingKey,
+      validator_address: options.validator.address
+  },
   }
 
   try {
